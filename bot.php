@@ -58,7 +58,7 @@ function telegram( $cmd, $data = array() ) {
     $resp = curl_exec( $curl );
     curl_close( $curl );
     // Для отладки раскомментируйте
-    //file_put_contents( "input.log", $resp . "\n", FILE_APPEND );
+    file_put_contents( "input.log", $resp . "\n", FILE_APPEND );
     return json_decode( $resp, true );
 }
 
@@ -87,7 +87,7 @@ if ( empty( $input_raw ) ) {
 }
 
 // Для отладки раскомментируйте
-//file_put_contents( "input.log", $input_raw . "\n", FILE_APPEND );
+file_put_contents( "input.log", $input_raw . "\n", FILE_APPEND );
 $input = json_decode( $input_raw, true );
 
 if ( ! $input ) {
@@ -98,7 +98,12 @@ if ( ! $input ) {
 
 // Считываем сохраненное состояние
 if ( file_exists( "data.php" ) ) {
+    // Блокируем файл чтобы не прочитать мусор в тот момент когда
+    // работает команда записи в файл
+    flock( "data.php", LOCK_SH );
     include( "data.php" );
+    // разблокируем
+    flock( "data.php", LOCK_UN );
 } else {
     $data = array(
         "new_chat_members" => array(),
