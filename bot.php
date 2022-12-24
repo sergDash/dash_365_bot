@@ -41,7 +41,7 @@
 */
 
 // Настройки бота
-require( "config.php" );
+require( __DIR__ . "/config.php" );
 $timeout = 60; // 1 минута на нажатие кнопки
 
 function telegram( $cmd, $data = array() ) {
@@ -58,7 +58,7 @@ function telegram( $cmd, $data = array() ) {
     $resp = curl_exec( $curl );
     curl_close( $curl );
     // Для отладки раскомментируйте
-    file_put_contents( "input.log", $resp . "\n", FILE_APPEND );
+    //file_put_contents( __DIR__ . "/input.log", $resp . "\n", FILE_APPEND );
     return json_decode( $resp, true );
 }
 
@@ -87,7 +87,7 @@ if ( empty( $input_raw ) ) {
 }
 
 // Для отладки раскомментируйте
-file_put_contents( "input.log", $input_raw . "\n", FILE_APPEND );
+//file_put_contents( __DIR__ . "/input.log", $input_raw . "\n", FILE_APPEND );
 $input = json_decode( $input_raw, true );
 
 if ( ! $input ) {
@@ -97,13 +97,13 @@ if ( ! $input ) {
 
 
 // Считываем сохраненное состояние
-if ( file_exists( "data.php" ) ) {
+if ( file_exists( __DIR__ . "/data.php" ) ) {
     // Блокируем файл чтобы не прочитать мусор в тот момент когда
     // работает команда записи в файл
-    flock( "data.php", LOCK_SH );
-    include( "data.php" );
+    flock( __DIR__ . "/data.php", LOCK_SH );
+    include( __DIR__ . "/data.php" );
     // разблокируем
-    flock( "data.php", LOCK_UN );
+    flock( __DIR__ . "/data.php", LOCK_UN );
 } else {
     $data = array(
         "new_chat_members" => array(),
@@ -216,7 +216,6 @@ function ban_and_clear( $n ) {
 
 function save_data() {
     global $data;
-    @$r = file_put_contents( "data.php", '<?php
-$data = ' . var_export( $data, true) . ";\n", LOCK_EX );
+    @$r = file_put_contents( __DIR__ . "/data.php", '<?php $data = ' . var_export( $data, true) . ";\n", LOCK_EX );
     return $r;
 }
